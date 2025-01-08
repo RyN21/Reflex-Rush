@@ -217,6 +217,7 @@ class Game < Gosu::Window
     @lose_sound       = Gosu::Sample.new("sounds/failed.mp3")
     @game_music       = Gosu::Song.new("sounds/game_music.mp3")
     @score_background = Gosu::Image.new("graphics/score_background.png")
+    @logo             = Gosu::Image.new("graphics/logo_bg.png")
   end
 
   def update
@@ -246,6 +247,7 @@ class Game < Gosu::Window
 
   def draw
     @backgrounds[@background_level].draw -21, 0, 0, 1.35, 1.35
+    @logo.draw 260, 0, 0, 0.35, 0.35, 0x40ffffff
     @player.draw
     if Gosu.milliseconds - @last_generated > 5_000
       @rocks << Rock.new(@difficulty)
@@ -268,7 +270,7 @@ class Game < Gosu::Window
   end
 
   def you_win
-    if @player.score >= 250
+    if @player.score >= 65
       @player.you_win
       @level_up_sound.play
       @rocks.clear
