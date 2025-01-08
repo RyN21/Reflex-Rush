@@ -34,7 +34,7 @@ class Player
   def initialize
     @char_image  = Gosu::Image.new("graphics/character_1.png")
     @player      = @char_image.subimage(210,160,390,495)
-    @hit_sound   = Gosu::Sample.new("sounds/hit_2.mp3")
+    @hit_sound   = Gosu::Sample.new("sounds/hit_4.mp3")
     @floor       = 375
     @ceiling     = 125
     @x           = 300
@@ -48,6 +48,7 @@ class Player
     @on_ground   = true
     @score       = 0
     @direction   = 0.3
+    @damage      = 25
   end
 
   def on_ground?
@@ -104,7 +105,7 @@ class Player
   def gets_hit(rocks)
     rocks.reject! do |rock|
       if Gosu.distance(@x + @player.width/2 *0.3, @y + @player.height / 2 *0.3, rock.x, rock.y) < 80 #|| Gosu.distance(@x + 390, @y + 495,rock.x, rock.y) < 80
-        @score -= 75
+        @score -= @damage
         @hit_sound.play
       else
         false
@@ -131,6 +132,7 @@ class Player
 
   def you_win
     @score = 0
+    @damage += 10
   end
 end
 
@@ -212,12 +214,14 @@ class Game < Gosu::Window
     @last_generated   = Gosu.milliseconds
     @font             = Gosu::Font.new(20)
     @level_up_sound        = Gosu::Sample.new("sounds/level_up.mp3")
-    @lose_sound       = Gosu::Sample.new("sounds/you_lose_sound.wav")
-    @game_music       = Gosu::Sample.new("sounds/game_music.mp3")
+    @lose_sound       = Gosu::Sample.new("sounds/failed.mp3")
+    @game_music       = Gosu::Song.new("sounds/game_music.mp3")
     @score_background = Gosu::Image.new("graphics/score_background.png")
   end
 
   def update
+    @game_music.play(true) unless @game_music.playing?
+    @game_music.volume
     if Gosu.button_down? Gosu::KB_LEFT
       @player.move_left
     end
@@ -243,7 +247,7 @@ class Game < Gosu::Window
   def draw
     @backgrounds[@background_level].draw -21, 0, 0, 1.35, 1.35
     @player.draw
-    if Gosu.milliseconds - @last_generated > 3_500
+    if Gosu.milliseconds - @last_generated > 5_000
       @rocks << Rock.new(@difficulty)
       @last_generated = Gosu.milliseconds
     end
