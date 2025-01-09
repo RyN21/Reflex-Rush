@@ -1,13 +1,14 @@
 require "gosu"
 
 class PowerUp
-  attr_reader :x, :y
+  attr_reader :x, :y, :type
 
-  def initialize
+  def initialize(type)
     pu1_image  = Gosu::Image.new("graphics/ruby.png")
     @power_up_1 = pu1_image.subimage(148,170,300,262)
     @x          = 300
     @y          = 50
+    @type       = type
     @vel        = rand 3..7
     @width      = 75
     @height     = 75
