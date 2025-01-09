@@ -185,6 +185,58 @@ class Rock
   # end
 end
 
+class PowerUp1
+  def initialize
+    pu1_image   = Gosu::Image.new("graphics/ruby.png")
+    pu2_image   = Gosu::Image.new("graphics/coin.png")
+    @power_up_2 = pu1_image.subimage(148,170,300,262)
+    @power_up_2 = pu2_image.subimage(148,170,300,262)
+    @x          = 300
+    @y          = 50
+    @vel        = rand 3..7
+    @width      = 75
+    @height     = 75
+  end
+
+  def draw
+    @@power_up_1.draw_rot(@x,@y,0,  25 * Math.sin(Gosu.milliseconds / 133.7), center_x = 0.5, center_y = 0.5, scale_x = 0.15, scale_y = 0.15)
+  end
+
+  def update_power_up
+
+  end
+
+  def draw_border(x, y, w, h)
+    Gosu.draw_line(x - @power_up_1.width/2 * 0.15, y - @power_up_1.height/2 *0.15, Gosu::Color::RED, x - @power_up_1.width/2 *0.15 + w, y - @power_up_1.height/2 *0.15, Gosu::Color::RED, 1) #top border
+    Gosu.draw_line(x - @power_up_1.width/2 * 0.15 + w, y - @power_up_1.height/2 *0.15, Gosu::Color::RED, x - @power_up_1.width/2 * 0.15 + w, y - @power_up_1.height/2 *0.15 + h, Gosu::Color::RED, 1) #right border
+    Gosu.draw_line(x - @power_up_1.width/2 * 0.15 + w, y - @power_up_1.height/2 *0.15 + h, Gosu::Color::RED, x - @power_up_1.width/2 * 0.15, y - @power_up_1.height/2 *0.15 + h, Gosu::Color::RED, 1) #bottom border
+    Gosu.draw_line(x - @power_up_1.width/2 * 0.15, y - @power_up_1.height/2 *0.15 + h, Gosu::Color::RED, x - @power_up_1.width/2 * 0.15, y - @power_up_1.height/2 *0.15, Gosu::Color::RED, 1) #left border
+  end
+end
+
+class PowerUp2
+  def initialize
+    pu2_image   = Gosu::Image.new("graphics/coin.png")
+    @power_up_2 = pu2_image.subimage(148,170,300,262)
+    @x          = rand 0..800
+    @y          = 0
+    @vel        = rand 0..7
+    @width      =
+    @height     =
+  end
+
+  def draw
+    @@power_up_2.draw_rot(@x,@y,0,  25 * Math.sin(Gosu.milliseconds / 133.7), center_x = 0.5, center_y = 0.5, scale_x = 0.15, scale_y = 0.15)
+  end
+
+  def draw_border(x, y, w, h)
+    Gosu.draw_line(x - @power_up_2.width/2 * 0.15, y - @power_up_2.height/2 *0.15, Gosu::Color::RED, x - @power_up_2.width/2 *0.15 + w, y - @power_up_2.height/2 *0.15, Gosu::Color::RED, 1) #top border
+    Gosu.draw_line(x - @power_up_2.width/2 * 0.15 + w, y - @power_up_2.height/2 *0.15, Gosu::Color::RED, x - @power_up_2.width/2 * 0.15 + w, y - @power_up_2.height/2 *0.15 + h, Gosu::Color::RED, 1) #right border
+    Gosu.draw_line(x - @power_up_2.width/2 * 0.15 + w, y - @power_up_2.height/2 *0.15 + h, Gosu::Color::RED, x - @power_up_2.width/2 * 0.15, y - @power_up_2.height/2 *0.15 + h, Gosu::Color::RED, 1) #bottom border
+    Gosu.draw_line(x - @power_up_2.width/2 * 0.15, y - @power_up_2.height/2 *0.15 + h, Gosu::Color::RED, x - @power_up_2.width/2 * 0.15, y - @power_up_2.height/2 *0.15, Gosu::Color::RED, 1) #left border
+  end
+end
+
 
 TITLE  = "Reflex Rush"
 
@@ -211,7 +263,9 @@ class Game < Gosu::Window
       @score_to_advance = 60
       @player           = Player.new
       @rocks            = []
+      @power_ups        = []
       @last_rock        = Gosu.milliseconds
+      @last_power_up    = Gosu.milliseconds
       @font             = Gosu::Font.new(20)
       @score_background = Gosu::Image.new("graphics/score_background.png")
       @logo_bg          = Gosu::Image.new("graphics/logo_bg.png")
@@ -245,6 +299,7 @@ class Game < Gosu::Window
     end
 
     @player.gets_hit(@rocks)
+    # @player.power_up(@power_ups)
     @player.add_points(@rocks)
     game_over
     level_up
@@ -261,6 +316,10 @@ class Game < Gosu::Window
       end
       @rocks.each do |rock|
         rock.draw
+      end
+      if Gosu.milliseconds - @last_power_up > 2_000
+        @power_ups << PowerUp1.new
+        @last_power_up = Gosu.milliseconds
       end
       @score_background.draw 0, 550, 0, 1, 0.19, 0xBFffffff
       @font.draw_text("Score: #{@player.score}",130,565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
