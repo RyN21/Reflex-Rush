@@ -8,9 +8,11 @@ require_relative "main_menu"
 
 
 class GameWindow
-  def initialize(state_manager)
+
+  def initialize(state_manager, difficulty)
     @state_manager = state_manager
-    @backgrounds = ["background_1", "background_2", "background_3",
+    @difficulty    = difficulty
+    @backgrounds   = ["background_1", "background_2", "background_3",
       "background_4", "background_5", "background_6",
       "background_7", "background_8", "background_9",
       "background_10", "background_11", "background_12",
@@ -21,21 +23,32 @@ class GameWindow
 
       @level            = 1
       @background_level = 0
-      @difficulty       = 3
-      @score_to_advance = 60
       @player           = Player.new
       @rocks            = []
       @last_rock        = Gosu.milliseconds
       @font             = Gosu::Font.new(20)
       @score_background = Gosu::Image.new("graphics/score_background.png")
       @logo_bg          = Gosu::Image.new("graphics/logo_bg.png")
-      @power_ups        = []
+      # @power_ups        = []
 
       @level_up_sound   = Gosu::Sample.new("sounds/level_up_2.mp3")
       @lose_sound       = Gosu::Sample.new("sounds/failed.mp3")
       @win_sound        = Gosu::Sample.new("sounds/you_won_sound.mp3")
       @game_music       = Gosu::Song.new("sounds/8bit_music.mp3")
-      # @credits_music    = Gosu::Song.new("sounds/credits_music.mp3")
+      case @difficulty
+      when 0
+        @rock_velocity   = 2
+        @gen_rock_time   = 7_000
+        @score_to_advance = 45
+      when 1
+        @rock_velocity   = 3
+        @gen_rock_time   = 5_000
+        @score_to_advance = 60
+      when 2
+        @rock_velocity   = 4
+        @gen_rock_time   = 3_000
+        @score_to_advance = 75
+      end
   end
 
   def update
@@ -71,8 +84,8 @@ class GameWindow
     if @background_level < @backgrounds.length - 1
       @backgrounds[@background_level].draw -21, 0, 0, 1.35, 1.35
       @player.draw
-      if Gosu.milliseconds - @last_rock > 4_000
-        @rocks << Rock.new(@difficulty)
+      if Gosu.milliseconds - @last_rock > @gen_rock_time
+        @rocks << Rock.new(@rock_velocity)
         @last_rock = Gosu.milliseconds
       end
       @rocks.each do |rock|
@@ -93,7 +106,7 @@ class GameWindow
     case id
     when Gosu::KB_ESCAPE
       @game_music.stop
-      @state_manager.switch_to(MainMenu.new(@current_state))
+      @state_manager.switch_to(MainMenu.new(@state_manager))
     # when Gosu::KB_RETURN
     #   reset
     end
@@ -106,7 +119,7 @@ class GameWindow
       @level_up_sound.play unless @background_level == @backgrounds.length - 1
       @level += 1
       @rocks.clear
-      @difficulty += 1
+      @rock_velocity += 1
       @score_to_advance += 15
     end
   end
