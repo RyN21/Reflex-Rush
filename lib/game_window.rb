@@ -133,7 +133,7 @@ end
 # refactor
 # window toggle
 # add power ups
-# health
+# health/lives
 # add menu section
   # pick character
   # pick difficulty
