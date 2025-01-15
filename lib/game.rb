@@ -35,7 +35,6 @@ class Player
   def initialize
     @char_image  = Gosu::Image.new("graphics/character_1.png")
     @player      = @char_image.subimage(210,160,390,495)
-    #                                         wid, hei
     @hit_sound   = Gosu::Sample.new("sounds/hit.wav")
     @floor       = 375
     @ceiling     = 125
@@ -58,7 +57,7 @@ class Player
 
   def move_right
     @x += @vel_x_right
-    if @x > 615
+    if @x > WINDOW_WIDTH - @player.width * 0.30
       @vel_x_right = 0
     else
       @vel_x_right = 5
@@ -69,7 +68,7 @@ class Player
 
   def move_left
     @x -= @vel_x_left
-    if @x < -60
+    if @x < 0
       @vel_x_left = 0
     else
       @vel_x_left = 5
@@ -140,7 +139,7 @@ class Rock
     @floor      = 540
     @x          = rand(0..800)
     @y          = 0
-    @vel        = 2
+    @vel        = rand 1..4
     @x_vel      = @vel
     @y_vel      = @vel
     @width      = 50
@@ -149,7 +148,6 @@ class Rock
   end
 
   def draw
-    # @rock.draw_rot(@x,@y,0, 15 * Math.sin(Gosu.milliseconds / 133.7), center_x = 0, center_y = 0, scale_x = 0.20, scale_y = 0.20)
     @rock.draw_rot(@x,@y,0,  25 * Math.sin(Gosu.milliseconds / 133.7), center_x = 0.5, center_y = 0.5, scale_x = 0.15, scale_y = 0.15)
     # draw_border(@x, @y, @rock.width * 0.15, @rock.height * 0.15)
   end
@@ -162,7 +160,6 @@ class Rock
   # end
 
   def update_rock
-    # @angle += 2
     @x += @x_vel
     @y += @y_vel
     if @x < 0
@@ -187,6 +184,20 @@ class Rock
   end
 end
 
+def Map
+    attr_reader :width, :height #floors???
+    def initialize(filename)
+      @file
+      @lines  = #?????
+      @height = lines.size
+      @width  = lines[0].size
+    end
+
+    def draw
+
+    end
+end
+
 
 
 TITLE  = "Reflux Rush"
@@ -203,6 +214,9 @@ class Game < Gosu::Window
     @rocks            = [@rock]
     @last_generated   = Gosu.milliseconds
     @font             = Gosu::Font.new(20)
+    @win_sound        = Gosu::Sample.new("sounds/win_sound.wav")
+    @lose_sound       = Gosu::Sample.new("sounds/you_lose_sound.wav")
+
   end
 
   def update
@@ -224,6 +238,8 @@ class Game < Gosu::Window
 
     @player.gets_hit(@rocks)
     @player.add_points(@rocks)
+    # game_over
+    # you_win
   end
 
   def draw
@@ -243,6 +259,18 @@ class Game < Gosu::Window
     case id
     when Gosu::KB_ESCAPE
       close
+    end
+  end
+
+  def you_win
+    if @player.score >= 1000
+      @win_sound.play
+    end
+  end
+
+  def game_over
+    if @player.score < 0
+      @lose_sound.play
     end
   end
 end
