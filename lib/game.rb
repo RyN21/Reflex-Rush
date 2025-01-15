@@ -106,15 +106,17 @@ class Player
   def gets_hit(rocks)
     rocks.reject! do |rock|
       if Gosu.distance(@x + @player.width/2 *0.3, @y + @player.height / 2 *0.3, rock.x, rock.y) < 80 #|| Gosu.distance(@x + 390, @y + 495,rock.x, rock.y) < 80
-        @score -= 10
+        @score -= 100
         @hit_sound.play
       else
         false
       end
     end
 
-    def add_points()
-
+    def add_points(rocks)
+      rocks.each do |rock|
+        @score += 15 if rock.update_score?
+      end
     end
   end
 
@@ -137,7 +139,7 @@ class Rock
     @rock       = @rock_image.subimage(148,170,300,262)
     @floor      = 540
     @x          = rand(0..800)
-    @y          = 5
+    @y          = 0
     @vel        = 2
     @x_vel      = @vel
     @y_vel      = @vel
@@ -170,9 +172,12 @@ class Rock
     end
     if @y <= 0
       @y_vel = @vel
-      @update_score = true
     elsif @y + @height > @floor
       @y_vel = -@vel
+    end
+    if @y == 0
+      @update_score = true
+    elsif
       @update_score = false
     end
   end
