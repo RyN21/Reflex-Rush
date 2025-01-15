@@ -27,7 +27,7 @@ end
 class Player
   attr_reader :score
   def initialize
-    @character_image = Gosu::Image.new("graphics/character_1_left.png")
+    @character_image = Gosu::Image.new("graphics/character_1.png")
     @beep            = Gosu::Sample.new("graphics/beep.wav")
     @floor           = 330
     @ceiling         = 125
@@ -41,6 +41,7 @@ class Player
     @vel_decrem      = 1
     @on_ground       = true
     @score           = 0
+    @direction       = 0.30
   end
 
   def on_ground?
@@ -54,6 +55,7 @@ class Player
     else
       @vel_x_right = 5
     end
+    # @direction = -0.30
   end
 
   def move_left
@@ -63,6 +65,7 @@ class Player
     else
       @vel_x_left = 5
     end
+    # @direction = 0.30
   end
 
   def jump
@@ -85,12 +88,43 @@ class Player
   end
 
   def draw
-    @character_image.draw @x, @y, 0, scale_x=0.30, scale_y=0.30
+    @character_image.draw @x, @y, 0, scale_x = @direction, scale_y=0.30
   end
 end
 
-class Bouncer
+class Rock
+  attr_reader :x, :y
+  def initialize
+    @rock   = Gosu::Image.new("graphics/rock.png")
+    @floor  = 550
+    @x      = rand(0..800)
+    @y      = 0
+    @vel    = 2
+    @x_vel  = @vel
+    @y_vel  = @vel
+    @width  = 50
+    @height = 50
+  end
 
+  def draw
+    @rock.draw_rot(@x,@y,0, 25 * Math.sin(Gosu.milliseconds / 133.7), center_x = 0.5, center_y = 0.5, 0.20, 0.20)
+  end
+
+  def update_rock
+
+    @x += @x_vel
+    @y += @y_vel
+    if @x < 0
+      @x_vel = @vel
+    elsif @x + @width > WINDOW_WIDTH
+      @x_vel = -@vel
+    end
+    if @y < 0
+      @y_vel = @vel
+    elsif @y + @height > @floor
+      @y_vel = -@vel
+    end
+  end
 end
 
 
@@ -103,8 +137,11 @@ class Game < Gosu::Window
     self.caption = TITLE
 
     @background_image = Gosu::Image.new("graphics/background_1.png")
-    @floor  = Floor.new(0, WINDOW_HEIGHT - FLOOR_HEIGHT, WINDOW_WIDTH, FLOOR_HEIGHT)
-    @player = Player.new
+    @floor            = Floor.new(0, WINDOW_HEIGHT - FLOOR_HEIGHT, WINDOW_WIDTH, FLOOR_HEIGHT)
+    @player           = Player.new
+    @rock             = Rock.new
+    @rocks            = [@rock]
+    @last_generated   = Gosu.milliseconds
   end
 
   def update
@@ -120,11 +157,21 @@ class Game < Gosu::Window
     if !Gosu.button_down? Gosu::KB_SPACE
       @player.gravity
     end
+    @rocks.each do |rock|
+      rock.update_rock
+    end
   end
 
   def draw
     @background_image.draw -15, 0, 0, 1.60, 1.18
     @player.draw
+    if Gosu.milliseconds - @last_generated > 10_000
+      @rocks << Rock.new
+      @last_generated = Gosu.milliseconds
+    end
+    @rocks.each do |rock|
+      rock.draw
+    end
   end
 
   def button_down id
