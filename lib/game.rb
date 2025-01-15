@@ -127,7 +127,11 @@ class Player
   # end
 
   def game_over
+    @score = 0
+  end
 
+  def you_win
+    @score = 0
   end
 end
 
@@ -139,7 +143,7 @@ class Rock
     @floor      = 540
     @x          = rand(0..800)
     @y          = 0
-    @vel        = rand 1..4
+    @vel        = rand 1..3
     @x_vel      = @vel
     @y_vel      = @vel
     @width      = 50
@@ -182,22 +186,11 @@ class Rock
   def update_score?
     @update_score
   end
+
+  def increase_difficulty
+    @vel = rand += 1..1
+  end
 end
-
-def Map
-    attr_reader :width, :height #floors???
-    def initialize(filename)
-      @file
-      @lines  = #?????
-      @height = lines.size
-      @width  = lines[0].size
-    end
-
-    def draw
-
-    end
-end
-
 
 
 TITLE  = "Reflux Rush"
@@ -207,7 +200,16 @@ class Game < Gosu::Window
     super(WINDOW_WIDTH, WINDOW_HEIGHT)
     self.caption = TITLE
 
-    @background_image = Gosu::Image.new("graphics/background_1.png")
+    @backgrounds = ["background_1", "background_2", "background_3",
+                    "background_4", "background_5", "background_6",
+                    "background_7", "background_8", "background_9",
+                    "background_10", "background_11", "background_12",
+                    "background_13"].map do |file|
+                      Gosu::Image.new("graphics/#{file}}.png")
+                    end
+
+    @level            = 1
+    @background_level = 0
     @floor            = Floor.new(0, WINDOW_HEIGHT - FLOOR_HEIGHT, WINDOW_WIDTH, FLOOR_HEIGHT)
     @player           = Player.new
     @rock             = Rock.new
@@ -216,7 +218,6 @@ class Game < Gosu::Window
     @font             = Gosu::Font.new(20)
     @win_sound        = Gosu::Sample.new("sounds/win_sound.wav")
     @lose_sound       = Gosu::Sample.new("sounds/you_lose_sound.wav")
-
   end
 
   def update
@@ -238,12 +239,12 @@ class Game < Gosu::Window
 
     @player.gets_hit(@rocks)
     @player.add_points(@rocks)
-    # game_over
-    # you_win
+    game_over
+    you_win
   end
 
   def draw
-    @background_image.draw -15, 0, 0, 1.60, 1.18
+    @backgrounds[@background_level].draw -21, 0, 0, 1.35, 1.35
     @player.draw
     if Gosu.milliseconds - @last_generated > 5_000
       @rocks << Rock.new
@@ -253,6 +254,7 @@ class Game < Gosu::Window
       rock.draw
     end
     @font.draw_text("Score: #{@player.score}", 10, 10, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
+    @font.draw_text("Level: #{@level}", 10, 40, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
   end
 
   def button_down id
@@ -263,14 +265,21 @@ class Game < Gosu::Window
   end
 
   def you_win
-    if @player.score >= 1000
+    if @player.score >= 100
+      @player.you_win
       @win_sound.play
+      @rocks.clear
+      @level += 1
+      @background_level += 1
     end
   end
 
   def game_over
     if @player.score < 0
+      @player.game_over
+      @rocks.clear
       @lose_sound.play
+      # @level = 1
     end
   end
 end
