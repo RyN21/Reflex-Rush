@@ -1,3 +1,9 @@
+# require "chunky_png"
+# image        = ChunkyPNG::Image.from_file("graphics/character_1.png")
+# scaled_h     = (image.height * 0.30).to_i
+# scaled_w     = (image.width * 0.30).to_i
+# downscaled   = image.resample_nearest_neighbor(scaled_w, scaled_h)
+# @player_image= Gosu::Image.from_blob(downscaled.width, downscaled.height)
 require "gosu"
 
 module ZOrder
@@ -27,21 +33,23 @@ end
 class Player
   attr_reader :score
   def initialize
-    @character_image = Gosu::Image.new("graphics/character_1.png")
-    @beep            = Gosu::Sample.new("graphics/beep.wav")
-    @floor           = 330
-    @ceiling         = 125
-    @x               = 300
-    @y               = @floor
-    @vel_x_left      = 5
-    @vel_x_right     = 5
-    @velocity_y      = 0
-    @jump_vel        = 21
-    @gravity_vel     = 1
-    @vel_decrem      = 1
-    @on_ground       = true
-    @score           = 0
-    @direction       = 0.30
+    @char_image  = Gosu::Image.new("graphics/character_1.png")
+    @player      = @char_image.subimage(210,160,390,495)
+    #                                         wid, hei
+    @hit_sound   = Gosu::Sample.new("sounds/hit.wav")
+    @floor       = 375
+    @ceiling     = 125
+    @x           = 300
+    @y           = @floor
+    @vel_x_left  = 5
+    @vel_x_right = 5
+    @velocity_y  = 0
+    @jump_vel    = 21
+    @gravity_vel = 1
+    @vel_decrem  = 1
+    @on_ground   = true
+    @score       = 0
+    @direction   = 0.3
   end
 
   def on_ground?
@@ -55,7 +63,8 @@ class Player
     else
       @vel_x_right = 5
     end
-    # @direction = -0.30
+    @direction = -0.3
+    @x + @player.width * 0.3
   end
 
   def move_left
@@ -65,7 +74,7 @@ class Player
     else
       @vel_x_left = 5
     end
-    # @direction = 0.30
+    @direction = 0.3
   end
 
   def jump
@@ -88,30 +97,70 @@ class Player
   end
 
   def draw
-    @character_image.draw @x, @y, 0, scale_x = @direction, scale_y=0.30
+    scale_x = @direction == 0.3 ? 0.3:-0.3
+    adjusted_scale_x = scale_x == -0.3 ? @x + @player.width * 0.3 : @x
+    @player.draw adjusted_scale_x, @y, 0, scale_x, scale_y = 0.3
+    # draw_border(@x, @y, @player.width * 0.3, @player.height * 0.3)
+  end
+
+  def gets_hit(rocks)
+    rocks.reject! do |rock|
+      if Gosu.distance(@x + @player.width/2 *0.3, @y + @player.height / 2 *0.3, rock.x, rock.y) < 80 #|| Gosu.distance(@x + 390, @y + 495,rock.x, rock.y) < 80
+        @score -= 10
+        @hit_sound.play
+      else
+        false
+      end
+    end
+
+    def add_points()
+
+    end
+  end
+
+  # def draw_border(x, y, w, h)
+  #   Gosu.draw_line(x, y, Gosu::Color::RED, x + w, y, Gosu::Color::RED, 1) #top border
+  #   Gosu.draw_line(x + w, y, Gosu::Color::RED, x + w, y + h, Gosu::Color::RED, 1) #right border
+  #   Gosu.draw_line(x + w, y + h, Gosu::Color::RED, x, y + h, Gosu::Color::RED, 1) #bottom border
+  #   Gosu.draw_line(x, y + h, Gosu::Color::RED, x, y, Gosu::Color::RED, 1) #left border
+  # end
+
+  def game_over
+
   end
 end
 
 class Rock
   attr_reader :x, :y
   def initialize
-    @rock   = Gosu::Image.new("graphics/rock.png")
-    @floor  = 550
-    @x      = rand(0..800)
-    @y      = 0
-    @vel    = 2
-    @x_vel  = @vel
-    @y_vel  = @vel
-    @width  = 50
-    @height = 50
+    @rock_image = Gosu::Image.new("graphics/rock.png")
+    @rock       = @rock_image.subimage(148,170,300,262)
+    @floor      = 540
+    @x          = rand(0..800)
+    @y          = 5
+    @vel        = 2
+    @x_vel      = @vel
+    @y_vel      = @vel
+    @width      = 50
+    @height     = 50
+    @update_score = false
   end
 
   def draw
-    @rock.draw_rot(@x,@y,0, 25 * Math.sin(Gosu.milliseconds / 133.7), center_x = 0.5, center_y = 0.5, 0.20, 0.20)
+    # @rock.draw_rot(@x,@y,0, 15 * Math.sin(Gosu.milliseconds / 133.7), center_x = 0, center_y = 0, scale_x = 0.20, scale_y = 0.20)
+    @rock.draw_rot(@x,@y,0,  25 * Math.sin(Gosu.milliseconds / 133.7), center_x = 0.5, center_y = 0.5, scale_x = 0.15, scale_y = 0.15)
+    # draw_border(@x, @y, @rock.width * 0.15, @rock.height * 0.15)
   end
 
-  def update_rock
+  # def draw_border(x, y, w, h)
+  #   Gosu.draw_line(x - @rock.width/2 * 0.15, y - @rock.height/2 *0.15, Gosu::Color::RED, x - @rock.width/2 *0.15 + w, y - @rock.height/2 *0.15, Gosu::Color::RED, 1) #top border
+  #   Gosu.draw_line(x - @rock.width/2 * 0.15 + w, y - @rock.height/2 *0.15, Gosu::Color::RED, x - @rock.width/2 * 0.15 + w, y - @rock.height/2 *0.15 + h, Gosu::Color::RED, 1) #right border
+  #   Gosu.draw_line(x - @rock.width/2 * 0.15 + w, y - @rock.height/2 *0.15 + h, Gosu::Color::RED, x - @rock.width/2 * 0.15, y - @rock.height/2 *0.15 + h, Gosu::Color::RED, 1) #bottom border
+  #   Gosu.draw_line(x - @rock.width/2 * 0.15, y - @rock.height/2 *0.15 + h, Gosu::Color::RED, x - @rock.width/2 * 0.15, y - @rock.height/2 *0.15, Gosu::Color::RED, 1) #left border
+  # end
 
+  def update_rock
+    # @angle += 2
     @x += @x_vel
     @y += @y_vel
     if @x < 0
@@ -119,11 +168,17 @@ class Rock
     elsif @x + @width > WINDOW_WIDTH
       @x_vel = -@vel
     end
-    if @y < 0
+    if @y <= 0
       @y_vel = @vel
+      @update_score = true
     elsif @y + @height > @floor
       @y_vel = -@vel
+      @update_score = false
     end
+  end
+
+  def update_score?
+    @update_score
   end
 end
 
@@ -142,6 +197,7 @@ class Game < Gosu::Window
     @rock             = Rock.new
     @rocks            = [@rock]
     @last_generated   = Gosu.milliseconds
+    @font             = Gosu::Font.new(20)
   end
 
   def update
@@ -160,18 +216,22 @@ class Game < Gosu::Window
     @rocks.each do |rock|
       rock.update_rock
     end
+
+    @player.gets_hit(@rocks)
+    @player.add_points(@rocks)
   end
 
   def draw
     @background_image.draw -15, 0, 0, 1.60, 1.18
     @player.draw
-    if Gosu.milliseconds - @last_generated > 10_000
+    if Gosu.milliseconds - @last_generated > 5_000
       @rocks << Rock.new
       @last_generated = Gosu.milliseconds
     end
     @rocks.each do |rock|
       rock.draw
     end
+    @font.draw_text("Score: #{@player.score}", 10, 10, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
   end
 
   def button_down id
