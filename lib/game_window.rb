@@ -29,9 +29,9 @@ class GameWindow
       @font             = Gosu::Font.new(20)
       @score_background = Gosu::Image.new("graphics/score_background.png")
       @logo_bg          = Gosu::Image.new("graphics/logo_bg.png")
-      @power_ups         = []
-      @last_powerup     = Gosu.milliseconds
-      @powerup_gen_time = 15_000
+      @bonus_points        = []
+      @last_bonus_Point     = Gosu.milliseconds
+      @bonus_points_gen_time = 15_000
 
       @level_up_sound   = Gosu::Sample.new("sounds/level_up_2.mp3")
       @lose_sound       = Gosu::Sample.new("sounds/failed.mp3")
@@ -73,15 +73,15 @@ class GameWindow
     @rocks.each do |rock|
       rock.update_rock
     end
-    @power_ups.each do |power_up|
-      power_up.update_power_up
+    @bonus_points.each do |bonus_point|
+      bonus_point.update_bonus_point
     end
 
-    # @power_ups
+    # @bonus_points
 
 
     @player.gets_hit(@rocks)
-    @player.power_up(@power_ups)
+    @player.bonus_point(@bonus_points)
     @player.add_points(@rocks)
     game_over
     level_up
@@ -99,12 +99,12 @@ class GameWindow
       @rocks.each do |rock|
         rock.draw
       end
-      if Gosu.milliseconds - @last_powerup > @powerup_gen_time
-        @power_ups << PowerUp.new
-        @last_powerup = Gosu.milliseconds
+      if Gosu.milliseconds - @last_bonus_Point > @bonus_points_gen_time
+        @bonus_points << BonusPoint.new
+        @last_bonus_Point = Gosu.milliseconds
       end
-      @power_ups.each do |power_up|
-        power_up.draw
+      @bonus_points.each do |bonus_point|
+        bonus_point.draw
       end
 
       @score_background.draw 0, 550, 0, 1, 0.19, 0xBFffffff
@@ -162,3 +162,8 @@ end
 # health/lives
 # character select option
 # Visual effect for rock impact
+#
+# power up ideas
+# increased speed
+# gets smaller
+# advance nect level
