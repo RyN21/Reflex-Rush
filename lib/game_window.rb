@@ -37,6 +37,10 @@ class GameWindow
       @last_shrink           = Gosu.milliseconds
       @shrink_gen_time       = 35_000
 
+      @speeds                = []
+      @last_speed            = Gosu.milliseconds
+      @speed_gen_time        = 20_000
+
       @level_up_sound        = Gosu::Sample.new("sounds/level_up_2.mp3")
       @lose_sound            = Gosu::Sample.new("sounds/failed.mp3")
       @win_sound             = Gosu::Sample.new("sounds/you_won_sound.mp3")
@@ -84,6 +88,10 @@ class GameWindow
       shrink.update_shrink
     end
 
+    @speeds.each do |speed|
+      speed.update_speed
+    end
+
     # @bonus_points
 
 
@@ -91,6 +99,7 @@ class GameWindow
     @player.bonus_point(@bonus_points)
     @player.add_points(@rocks)
     @player.shrink(@shrinks)
+    @player.speed_up(@speeds)
     game_over
     level_up
     you_win
@@ -123,6 +132,14 @@ class GameWindow
       end
       @shrinks.each do |shrink|
         shrink.draw
+      end
+      #speeds up
+      if Gosu.milliseconds - @last_speed > @speed_gen_time
+        @speeds << Speed.new
+        @last_speed = Gosu.milliseconds
+      end
+      @speeds.each do |speed|
+        speed.draw
       end
 
       @score_background.draw 0, 550, 0, 1, 0.19, 0xBFffffff

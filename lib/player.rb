@@ -12,8 +12,9 @@ class Player
     @ceiling      = 125
     @x            = 300
     @y            = @floor
-    @vel_x_left   = 8
-    @vel_x_right  = 8
+    @player_speed = 8
+    @vel_x_left   = @player_speed
+    @vel_x_right  = @player_speed
     @velocity_y   = 0
     @jump_vel     = 26
     @gravity_vel  = 1
@@ -24,7 +25,7 @@ class Player
     @damage       = 25
     @victory      = false
     @shrunk       = false
-    @shrink_time  = Gosu.milliseconds
+    @sped_up      = false
   end
 
   def on_ground?
@@ -36,7 +37,7 @@ class Player
     if @x > WINDOW_WIDTH - @player.width * @player_scale
       @vel_x_right = 0
     else
-      @vel_x_right = 8
+      @vel_x_right = @player_speed
     end
     @direction = -@player_scale
     @x + @player.width * @player_scale
@@ -47,7 +48,7 @@ class Player
     if @x < 0
       @vel_x_left = 0
     else
-      @vel_x_left = 8
+      @vel_x_left = @player_speed
     end
     @direction = @player_scale
   end
@@ -102,7 +103,6 @@ class Player
     def shrink(shrinks)
       shrinks.reject! do |shrink|
         if Gosu.distance(@x + @player.width/2 *@player_scale, @y + @player.height / 2 *@player_scale, shrink.x, shrink.y) < 80
-          @shrink_time = Gosu.milliseconds
           @player_scale = 0.15
           @bonus_sound.play
           @floor = FLOOR - @player.height * @player_scale
@@ -123,9 +123,25 @@ class Player
       @shrunk = false
     end
 
-    def shrunk?
-      @shrunk
+    def speed_up(speeds)
+      speeds.reject! do |speed|
+        if Gosu.distance(@x + @player.width/2 *@player_scale, @y + @player.height / 2 *@player_scale, speed.x, speed.y) < 80
+          @player_speed = 15
+          @bonus_sound.play
+          Thread.new do
+            sleep(9)
+            unspeed
+          end
+        else
+          false
+        end
+      end
     end
+
+    def unspeed
+      @player_speed = 8
+    end
+
 
     def add_points(rocks)
       rocks.each do |rock|
