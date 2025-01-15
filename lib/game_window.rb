@@ -1,4 +1,8 @@
 require "gosu"
+require_relative "player"
+require_relative "rock"
+
+#Game Logic and gameplay
 
 module ZOrder
   BACKGROUND, PLAYER, ROCK, UI = *0..3
@@ -9,7 +13,7 @@ WINDOW_HEIGHT= 600
 FLOOR        = 525
 TITLE        = "Reflex Rush"
 
-class WindowGame < Gosu::Window
+class GameWindow < Gosu::Window
   def initialize(width = 800, height = 600)
     super(WINDOW_WIDTH, WINDOW_HEIGHT)
     self.caption = TITLE
@@ -137,7 +141,7 @@ class WindowGame < Gosu::Window
   end
 end
 
-WindowGame.new.show
+GameWindow.new.show
 
 
 
