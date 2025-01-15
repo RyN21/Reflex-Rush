@@ -101,7 +101,7 @@ class GameWindow
     @player.add_points(@rocks)
     @player.shrink(@shrinks)
     @player.speed_up(@speeds)
-    game_over
+    you_lose
     level_up
     you_win
   end
@@ -144,6 +144,7 @@ class GameWindow
       end
 
       @score_background.draw 0, 550, 0, 1, 0.19, 0xBFffffff
+      @font.draw_text("Lives: #{@player.lives}",20,20, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
       @font.draw_text("Score: #{@player.score}",130,565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
       @font.draw_text("Level: #{@level}/#{@backgrounds.length-1}", 20, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
       @font.draw_text("Score #{@score_to_advance} to advance", 600, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
@@ -174,9 +175,10 @@ class GameWindow
     end
   end
 
-  def game_over
+  def you_lose
     if @player.score < 0
-      @player.game_over
+      @player.lose_life
+      @player.you_lose
       @rocks.clear
       @lose_sound.play
     end
@@ -188,6 +190,13 @@ class GameWindow
       @level += 1
     end
   end
+
+  def game_over
+    if @player.lives == 0
+      @lose_sound.play
+      @state_manager.switch_to(MainMenu.new(@state_manager))
+    end
+  end
 end
 
 
@@ -195,12 +204,9 @@ end
 
 # refactor
 # window toggle
-# add power ups
 # health/lives
 # character select option
 # Visual effect for rock impact
 #
 # power up ideas
-# increased speed
-# gets smaller
-# advance nect level
+# advance next level

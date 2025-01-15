@@ -1,12 +1,13 @@
 require "gosu"
 
 class Player
-  attr_reader :score
+  attr_reader :score, :lives
   def initialize
     @char_image   = Gosu::Image.new("graphics/character_1.png")
     @player       = @char_image.subimage(210,160,390,495)
     @hit_sound    = Gosu::Sample.new("sounds/hit_4.mp3")
     @bonus_sound  = Gosu::Sample.new("sounds/level_up.mp3")
+    @lives        = 10
     @player_scale = 0.30
     @floor        = FLOOR - @player.height * @player_scale
     @ceiling      = 125
@@ -26,6 +27,10 @@ class Player
     @victory      = false
     @shrunk       = false
     @sped_up      = false
+  end
+
+  def lose_life
+    @lives -= 1
   end
 
   def on_ground?
@@ -155,7 +160,7 @@ class Player
     @damage += 5
   end
 
-  def game_over
+  def you_lose
     @score = 0
   end
 
