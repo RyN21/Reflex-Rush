@@ -11,6 +11,10 @@ require_relative "lib/state_manager"
 require_relative "lib/main_menu"
 require_relative "lib/game_window"
 
+module ZOrder
+  BACKGROUND, PLAYER, ROCK, UI = *0..3
+end
+
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT= 600
 FLOOR        = 525
@@ -20,8 +24,9 @@ class Main < Gosu::Window
   def initialize
     super WINDOW_WIDTH, WINDOW_HEIGHT
     self.caption = TITLE
-
     @state_manager = StateManger.new(self)
+
+    @state_manager.switch_to(MainMenu.new(@state_manager))
   end
 
   def update
@@ -37,7 +42,7 @@ class Main < Gosu::Window
   end
 end
 
-Maoin.new.show
+Main.new.show
 
 
 

@@ -1,26 +1,15 @@
 require "gosu"
 require_relative "player"
 require_relative "rock"
+require_relative "state_manager"
+require_relative "main_menu"
 
 #Game Logic and gameplay
 
-module ZOrder
-  BACKGROUND, PLAYER, ROCK, UI = *0..3
-end
 
-WINDOW_WIDTH = 800
-WINDOW_HEIGHT= 600
-FLOOR        = 525
-TITLE        = "Reflex Rush"
-
-class GameWindow < Gosu::Window
-  def initialize(width = 800, height = 600)
-    super(WINDOW_WIDTH, WINDOW_HEIGHT)
-    self.caption = TITLE
-    start
-  end
-
-  def start
+class GameWindow
+  def initialize(state_manager)
+    @state_manager = state_manager
     @backgrounds = ["background_1", "background_2", "background_3",
       "background_4", "background_5", "background_6",
       "background_7", "background_8", "background_9",
@@ -46,11 +35,7 @@ class GameWindow < Gosu::Window
       @lose_sound       = Gosu::Sample.new("sounds/failed.mp3")
       @win_sound        = Gosu::Sample.new("sounds/you_won_sound.mp3")
       @game_music       = Gosu::Song.new("sounds/8bit_music.mp3")
-      @credits_music    = Gosu::Song.new("sounds/credits_music.mp3")
-  end
-
-  def reset
-    start
+      # @credits_music    = Gosu::Song.new("sounds/credits_music.mp3")
   end
 
   def update
@@ -107,9 +92,10 @@ class GameWindow < Gosu::Window
   def button_down id
     case id
     when Gosu::KB_ESCAPE
-      close
-    when Gosu::KB_RETURN
-      reset
+      @game_music.stop
+      @state_manager.switch_to(MainMenu.new(@current_state))
+    # when Gosu::KB_RETURN
+    #   reset
     end
   end
 
@@ -140,8 +126,6 @@ class GameWindow < Gosu::Window
     end
   end
 end
-
-GameWindow.new.show
 
 
 
