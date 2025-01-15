@@ -42,7 +42,7 @@ class Player
     @vel_x_left  = 8
     @vel_x_right = 8
     @velocity_y  = 0
-    @jump_vel    = 25
+    @jump_vel    = 26
     @gravity_vel = 1
     @vel_decrem  = 1
     @on_ground   = true
@@ -79,7 +79,7 @@ class Player
     @jump_vel -= 1
     @y -= @jump_vel
     if @y >= @floor
-      @jump_vel = 25
+      @jump_vel = 26
     end
   end
 
@@ -90,7 +90,7 @@ class Player
       @y = @floor
       on_ground = true
       @gravity_vel = 1
-      @jump_vel = 25
+      @jump_vel = 26
     end
   end
 
@@ -249,7 +249,7 @@ class Game < Gosu::Window
     @rocks.each do |rock|
       rock.draw
     end
-    @score_background.draw 0, 550, 0, 1, 0.19
+    @score_background.draw 0, 550, 0, 1, 0.19, 0xBFffffff
     @font.draw_text("Score: #{@player.score}",130,565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
     @font.draw_text("Level: #{@level}", 20, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
     @font.draw_text("Score 250 to advance", 600, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
