@@ -6,6 +6,7 @@ class Player
     @char_image  = Gosu::Image.new("graphics/character_1.png")
     @player      = @char_image.subimage(210,160,390,495)
     @hit_sound   = Gosu::Sample.new("sounds/hit_4.mp3")
+    @power_sound = Gosu::Sample.new("sounds/level_up.mp3")
     @floor       = FLOOR - @player.height * 0.3
     @ceiling     = 125
     @x           = 300
@@ -82,6 +83,18 @@ class Player
       else
         false
       end
+    end
+
+    def power_up(power_ups)
+      power_ups.reject! do |power_up|
+        if Gosu.distance(@x + @player.width/2 *0.3, @y + @player.height / 2 *0.3, power_up.x, power_up.y) < 80
+          @score += 25
+          @power_sound.play
+        else
+          false
+        end
+      end
+
     end
 
     def add_points(rocks)

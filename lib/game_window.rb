@@ -29,7 +29,9 @@ class GameWindow
       @font             = Gosu::Font.new(20)
       @score_background = Gosu::Image.new("graphics/score_background.png")
       @logo_bg          = Gosu::Image.new("graphics/logo_bg.png")
-      # @power_ups        = []
+      @power_ups         = []
+      @last_powerup     = Gosu.milliseconds
+      @powerup_gen_time = 15_000
 
       @level_up_sound   = Gosu::Sample.new("sounds/level_up_2.mp3")
       @lose_sound       = Gosu::Sample.new("sounds/failed.mp3")
@@ -37,16 +39,16 @@ class GameWindow
       @game_music       = Gosu::Song.new("sounds/8bit_music.mp3")
       case @difficulty
       when 0
-        @rock_velocity   = 2
-        @gen_rock_time   = 7_000
+        @rock_velocity    = 2
+        @gen_rock_time    = 7_000
         @score_to_advance = 45
       when 1
-        @rock_velocity   = 3
-        @gen_rock_time   = 5_000
+        @rock_velocity    = 3
+        @gen_rock_time    = 5_000
         @score_to_advance = 60
       when 2
-        @rock_velocity   = 4
-        @gen_rock_time   = 3_000
+        @rock_velocity    = 4
+        @gen_rock_time    = 3_000
         @score_to_advance = 75
       end
   end
@@ -71,9 +73,15 @@ class GameWindow
     @rocks.each do |rock|
       rock.update_rock
     end
+    @power_ups.each do |power_up|
+      power_up.update_power_up
+    end
+
+    # @power_ups
+
 
     @player.gets_hit(@rocks)
-    # @player.power_up(@power_ups)
+    @player.power_up(@power_ups)
     @player.add_points(@rocks)
     game_over
     level_up
@@ -91,6 +99,13 @@ class GameWindow
       @rocks.each do |rock|
         rock.draw
       end
+      if Gosu.milliseconds - @last_powerup > @powerup_gen_time
+        @power_ups << PowerUp.new
+        @last_powerup = Gosu.milliseconds
+      end
+      @power_ups.each do |power_up|
+        power_up.draw
+      end
 
       @score_background.draw 0, 550, 0, 1, 0.19, 0xBFffffff
       @font.draw_text("Score: #{@player.score}",130,565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
@@ -107,8 +122,6 @@ class GameWindow
     when Gosu::KB_ESCAPE
       @game_music.stop
       @state_manager.switch_to(MainMenu.new(@state_manager))
-    # when Gosu::KB_RETURN
-    #   reset
     end
   end
 
@@ -147,6 +160,5 @@ end
 # window toggle
 # add power ups
 # health/lives
-# add menu section
-  # pick character
-  # pick difficulty
+# character select option
+# Visual effect for rock impact
