@@ -21,22 +21,26 @@ class GameWindow
         Gosu::Image.new("graphics/#{file}.png")
       end
 
-      @level            = 1
-      @background_level = 0
-      @player           = Player.new
-      @rocks            = []
-      @last_rock        = Gosu.milliseconds
-      @font             = Gosu::Font.new(20)
-      @score_background = Gosu::Image.new("graphics/score_background.png")
-      @logo_bg          = Gosu::Image.new("graphics/logo_bg.png")
-      @bonus_points        = []
-      @last_bonus_Point     = Gosu.milliseconds
+      @level                 = 1
+      @background_level      = 0
+      @player                = Player.new
+      @rocks                 = []
+      @last_rock             = Gosu.milliseconds
+      @font                  = Gosu::Font.new(20)
+      @score_background      = Gosu::Image.new("graphics/score_background.png")
+      @logo_bg               = Gosu::Image.new("graphics/logo_bg.png")
+      @bonus_points          = []
+      @last_bonus_Point      = Gosu.milliseconds
       @bonus_points_gen_time = 15_000
 
-      @level_up_sound   = Gosu::Sample.new("sounds/level_up_2.mp3")
-      @lose_sound       = Gosu::Sample.new("sounds/failed.mp3")
-      @win_sound        = Gosu::Sample.new("sounds/you_won_sound.mp3")
-      @game_music       = Gosu::Song.new("sounds/8bit_music.mp3")
+      @shrinks               = []
+      @last_shrink           = Gosu.milliseconds
+      @shrink_gen_time       = 35_000
+
+      @level_up_sound        = Gosu::Sample.new("sounds/level_up_2.mp3")
+      @lose_sound            = Gosu::Sample.new("sounds/failed.mp3")
+      @win_sound             = Gosu::Sample.new("sounds/you_won_sound.mp3")
+      @game_music            = Gosu::Song.new("sounds/8bit_music.mp3")
       case @difficulty
       when 0
         @rock_velocity    = 2
@@ -76,6 +80,9 @@ class GameWindow
     @bonus_points.each do |bonus_point|
       bonus_point.update_bonus_point
     end
+    @shrinks.each do |shrink|
+      shrink.update_shrink
+    end
 
     # @bonus_points
 
@@ -83,6 +90,7 @@ class GameWindow
     @player.gets_hit(@rocks)
     @player.bonus_point(@bonus_points)
     @player.add_points(@rocks)
+    @player.shrink(@shrinks)
     game_over
     level_up
     you_win
@@ -92,6 +100,7 @@ class GameWindow
     if @background_level < @backgrounds.length - 1
       @backgrounds[@background_level].draw -21, 0, 0, 1.35, 1.35
       @player.draw
+      #rocks
       if Gosu.milliseconds - @last_rock > @gen_rock_time
         @rocks << Rock.new(@rock_velocity)
         @last_rock = Gosu.milliseconds
@@ -99,12 +108,21 @@ class GameWindow
       @rocks.each do |rock|
         rock.draw
       end
+      #bonus points
       if Gosu.milliseconds - @last_bonus_Point > @bonus_points_gen_time
         @bonus_points << BonusPoint.new
         @last_bonus_Point = Gosu.milliseconds
       end
       @bonus_points.each do |bonus_point|
         bonus_point.draw
+      end
+      #shrink
+      if Gosu.milliseconds - @last_shrink > @shrink_gen_time
+        @shrinks << Shrink.new
+        @last_shrink = Gosu.milliseconds
+      end
+      @shrinks.each do |shrink|
+        shrink.draw
       end
 
       @score_background.draw 0, 550, 0, 1, 0.19, 0xBFffffff

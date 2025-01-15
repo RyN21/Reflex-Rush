@@ -3,25 +3,28 @@ require "gosu"
 class Player
   attr_reader :score
   def initialize
-    @char_image  = Gosu::Image.new("graphics/character_1.png")
-    @player      = @char_image.subimage(210,160,390,495)
-    @hit_sound   = Gosu::Sample.new("sounds/hit_4.mp3")
-    @bonus_sound = Gosu::Sample.new("sounds/level_up.mp3")
-    @floor       = FLOOR - @player.height * 0.3
-    @ceiling     = 125
-    @x           = 300
-    @y           = @floor
-    @vel_x_left  = 8
-    @vel_x_right = 8
-    @velocity_y  = 0
-    @jump_vel    = 26
-    @gravity_vel = 1
-    @vel_decrem  = 1
-    @on_ground   = true
-    @score       = 0
-    @direction   = 0.3
-    @damage      = 25
-    @victory     = false
+    @char_image   = Gosu::Image.new("graphics/character_1.png")
+    @player       = @char_image.subimage(210,160,390,495)
+    @hit_sound    = Gosu::Sample.new("sounds/hit_4.mp3")
+    @bonus_sound  = Gosu::Sample.new("sounds/level_up.mp3")
+    @player_scale = 0.30
+    @floor        = FLOOR - @player.height * @player_scale
+    @ceiling      = 125
+    @x            = 300
+    @y            = @floor
+    @vel_x_left   = 8
+    @vel_x_right  = 8
+    @velocity_y   = 0
+    @jump_vel     = 26
+    @gravity_vel  = 1
+    @vel_decrem   = 1
+    @on_ground    = true
+    @score        = 0
+    @direction    = nil
+    @damage       = 25
+    @victory      = false
+    @shrunk       = false
+    @shrink_time  = Gosu.milliseconds
   end
 
   def on_ground?
@@ -30,13 +33,13 @@ class Player
 
   def move_right
     @x += @vel_x_right
-    if @x > WINDOW_WIDTH - @player.width * 0.30
+    if @x > WINDOW_WIDTH - @player.width * @player_scale
       @vel_x_right = 0
     else
       @vel_x_right = 8
     end
-    @direction = -0.3
-    @x + @player.width * 0.3
+    @direction = -@player_scale
+    @x + @player.width * @player_scale
   end
 
   def move_left
@@ -46,7 +49,7 @@ class Player
     else
       @vel_x_left = 8
     end
-    @direction = 0.3
+    @direction = @player_scale
   end
 
   def jump
@@ -69,15 +72,15 @@ class Player
   end
 
   def draw
-    scale_x = @direction == 0.3 ? 0.3:-0.3
-    adjusted_scale_x = scale_x == -0.3 ? @x + @player.width * 0.3 : @x
-    @player.draw adjusted_scale_x, @y, 0, scale_x, scale_y = 0.3
+    scale_x = @direction == @player_scale ? @player_scale:-@player_scale
+    adjusted_scale_x = scale_x == -@player_scale ? @x + @player.width * @player_scale : @x
+    @player.draw adjusted_scale_x, @y, 0, scale_x, scale_y = @player_scale
     # draw_border(@x, @y, @player.width * 0.3, @player.height * 0.3)
   end
 
   def gets_hit(rocks)
     rocks.reject! do |rock|
-      if Gosu.distance(@x + @player.width/2 *0.3, @y + @player.height / 2 *0.3, rock.x, rock.y) < 80
+      if Gosu.distance(@x + @player.width/2 *@player_scale, @y + @player.height / 2 *@player_scale, rock.x, rock.y) < 80
         @score -= @damage
         @hit_sound.play
       else
@@ -87,14 +90,41 @@ class Player
 
     def bonus_point(bonus_points)
       bonus_points.reject! do |bonus_point|
-        if Gosu.distance(@x + @player.width/2 *0.3, @y + @player.height / 2 *0.3, bonus_point.x, bonus_point.y) < 80
+        if Gosu.distance(@x + @player.width/2 *@player_scale, @y + @player.height / 2 *@player_scale, bonus_point.x, bonus_point.y) < 80
           @score += 25
           @bonus_sound.play
         else
           false
         end
       end
+    end
 
+    def shrink(shrinks)
+      shrinks.reject! do |shrink|
+        if Gosu.distance(@x + @player.width/2 *@player_scale, @y + @player.height / 2 *@player_scale, shrink.x, shrink.y) < 80
+          @shrink_time = Gosu.milliseconds
+          @player_scale = 0.15
+          @bonus_sound.play
+          @floor = FLOOR - @player.height * @player_scale
+          @shrunk = true
+          Thread.new do
+            sleep(9)
+            unshrink
+          end
+        else
+          false
+        end
+      end
+    end
+
+    def unshrink
+      @player_scale = 0.30
+      @floor = FLOOR - @player.height * @player_scale
+      @shrunk = false
+    end
+
+    def shrunk?
+      @shrunk
     end
 
     def add_points(rocks)
