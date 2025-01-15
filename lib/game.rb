@@ -34,7 +34,7 @@ class Player
   def initialize
     @char_image  = Gosu::Image.new("graphics/character_1.png")
     @player      = @char_image.subimage(210,160,390,495)
-    @hit_sound   = Gosu::Sample.new("sounds/hit.wav")
+    @hit_sound   = Gosu::Sample.new("sounds/hit_2.mp3")
     @floor       = 375
     @ceiling     = 125
     @x           = 300
@@ -211,8 +211,9 @@ class Game < Gosu::Window
     @rocks            = [@rock]
     @last_generated   = Gosu.milliseconds
     @font             = Gosu::Font.new(20)
-    @win_sound        = Gosu::Sample.new("sounds/win_sound.wav")
+    @level_up_sound        = Gosu::Sample.new("sounds/level_up.mp3")
     @lose_sound       = Gosu::Sample.new("sounds/you_lose_sound.wav")
+    @game_music       = Gosu::Sample.new("sounds/game_music.mp3")
     @score_background = Gosu::Image.new("graphics/score_background.png")
   end
 
@@ -265,7 +266,7 @@ class Game < Gosu::Window
   def you_win
     if @player.score >= 250
       @player.you_win
-      @win_sound.play
+      @level_up_sound.play
       @rocks.clear
       @level += 1
       @background_level += 1
