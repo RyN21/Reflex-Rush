@@ -49,6 +49,7 @@ class Player
     @score       = 0
     @direction   = 0.3
     @damage      = 25
+    @victory     = false
   end
 
   def on_ground?
@@ -125,14 +126,17 @@ class Player
   #   Gosu.draw_line(x + w, y + h, Gosu::Color::RED, x, y + h, Gosu::Color::RED, 1) #bottom border
   #   Gosu.draw_line(x, y + h, Gosu::Color::RED, x, y, Gosu::Color::RED, 1) #left border
   # end
+  def level_up
+    @score = 0
+    @damage += 10
+  end
 
   def game_over
     @score = 0
   end
 
-  def you_win
-    @score = 0
-    @damage += 10
+  def victory?(level, backgrounds)
+    level == backgrounds.length ? @victory = true : @victory = false
   end
 end
 
@@ -196,33 +200,42 @@ class Game < Gosu::Window
   def initialize(width = 800, height = 600)
     super(WINDOW_WIDTH, WINDOW_HEIGHT)
     self.caption = TITLE
+    reset
+  end
 
+  def reset
     @backgrounds = ["background_1", "background_2", "background_3",
-                    "background_4", "background_5", "background_6",
-                    "background_7", "background_8", "background_9",
-                    "background_10", "background_11", "background_12",].map do |file|
-                      Gosu::Image.new("graphics/#{file}.png")
-                    end
+      "background_4", "background_5", "background_6",
+      "background_7", "background_8", "background_9",
+      "background_10", "background_11", "background_12",
+      "credit_page"].map do |file|
+        Gosu::Image.new("graphics/#{file}.png")
+      end
 
-    @level            = 1
-    @background_level = 0
-    @difficulty       = 4
-    @floor            = Floor.new(0, WINDOW_HEIGHT - FLOOR_HEIGHT, WINDOW_WIDTH, FLOOR_HEIGHT)
-    @player           = Player.new
-    @rock             = Rock.new(@difficulty)
-    @rocks            = [@rock]
-    @last_generated   = Gosu.milliseconds
-    @font             = Gosu::Font.new(20)
-    @level_up_sound        = Gosu::Sample.new("sounds/level_up.mp3")
-    @lose_sound       = Gosu::Sample.new("sounds/failed.mp3")
-    @game_music       = Gosu::Song.new("sounds/game_music.mp3")
-    @score_background = Gosu::Image.new("graphics/score_background.png")
-    @logo             = Gosu::Image.new("graphics/logo_bg.png")
+      @level            = 1
+      @background_level = 0
+      @difficulty       = 3
+      @score_to_get     = 250
+      @floor            = Floor.new(0, WINDOW_HEIGHT - FLOOR_HEIGHT, WINDOW_WIDTH, FLOOR_HEIGHT)
+      @player           = Player.new
+      @rock             = Rock.new(@difficulty)
+      @rocks            = [@rock]
+      @last_generated   = Gosu.milliseconds
+      @font             = Gosu::Font.new(20)
+      @level_up_sound   = Gosu::Sample.new("sounds/level_up_2.mp3")
+      @lose_sound       = Gosu::Sample.new("sounds/failed.mp3")
+      @game_music       = Gosu::Song.new("sounds/8bit_music.mp3")
+      @credits_music    = Gosu::Song.new("sounds/credits_music.mp3")
+      @win_sound        = Gosu::Sample.new("sounds/you_won_sound.mp3")
+      @score_background = Gosu::Image.new("graphics/score_background.png")
+      @logo_bg          = Gosu::Image.new("graphics/logo_bg.png")
   end
 
   def update
     @game_music.play(true) unless @game_music.playing?
-    @game_music.volume
+    if @player.victory?(@level, @backgrounds)
+      @credits_music.play(true) unless @credits_music.playing?
+    end
     if Gosu.button_down? Gosu::KB_LEFT
       @player.move_left
     end
@@ -242,40 +255,47 @@ class Game < Gosu::Window
     @player.gets_hit(@rocks)
     @player.add_points(@rocks)
     game_over
+    level_up
     you_win
   end
 
   def draw
-    @backgrounds[@background_level].draw -21, 0, 0, 1.35, 1.35
-    @logo.draw 260, 0, 0, 0.35, 0.35, 0x40ffffff
-    @player.draw
-    if Gosu.milliseconds - @last_generated > 5_000
-      @rocks << Rock.new(@difficulty)
-      @last_generated = Gosu.milliseconds
+    if @background_level < @backgrounds.length - 1
+      @backgrounds[@background_level].draw -21, 0, 0, 1.35, 1.35
+      @player.draw
+      if Gosu.milliseconds - @last_generated > 5_500
+        @rocks << Rock.new(@difficulty)
+        @last_generated = Gosu.milliseconds
+      end
+      @rocks.each do |rock|
+        rock.draw
+      end
+      @score_background.draw 0, 550, 0, 1, 0.19, 0xBFffffff
+      @font.draw_text("Score: #{@player.score}",130,565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
+      @font.draw_text("Level: #{@level}/12", 20, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
+      @font.draw_text("Score #{@score_to_get} to advance", 600, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
+    else
+      @backgrounds[@background_level].draw 19, 33, 0, 0.95, 0.95
+      @score_background.draw 0, 550, 0, 1, 0.19, 0xBFffffff
     end
-    @rocks.each do |rock|
-      rock.draw
-    end
-    @score_background.draw 0, 550, 0, 1, 0.19, 0xBFffffff
-    @font.draw_text("Score: #{@player.score}",130,565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
-    @font.draw_text("Level: #{@level}", 20, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
-    @font.draw_text("Score 250 to advance", 600, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
   end
 
   def button_down id
     case id
     when Gosu::KB_ESCAPE
       close
+    when Gosu::KB_RETURN
+      reset
     end
   end
 
-  def you_win
-    if @player.score >= 65
-      @player.you_win
-      @level_up_sound.play
-      @rocks.clear
-      @level += 1
+  def level_up
+    if @player.score >= @score_to_get && @background_level != @backgrounds.length - 1
       @background_level += 1
+      @player.level_up
+      @level_up_sound.play unless @background_level == @backgrounds.length - 1
+      @level += 1
+      @rocks.clear
       @difficulty += 1
     end
   end
@@ -285,14 +305,16 @@ class Game < Gosu::Window
       @player.game_over
       @rocks.clear
       @lose_sound.play
-      # @level = 1
+    end
+  end
+
+  def you_win
+    if @player.victory?(@level, @backgrounds)
+      @win_sound.play
+      @level += 1
     end
   end
 end
-
-
-
-
 
 
 Game.new.show
