@@ -13,7 +13,7 @@ class Shrink
 
   def draw
     @shrink.draw_rot(@x, @y, 0, 25 * Math.sin(Gosu.milliseconds / 133.7), center_x = 0.5, center_y = 0.5, scale_x = 0.05, scale_y = 0.05)
-    draw_border(@x, @y, @shrink.width * 0.05, @shrink.height * 0.05)
+    # draw_border(@x, @y, @shrink.width * 0.05, @shrink.height * 0.05)
   end
 
   def update_shrink

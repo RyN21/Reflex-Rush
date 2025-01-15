@@ -8,6 +8,7 @@ require_relative "main_menu"
 
 
 class GameWindow
+  DIFFICULTIES = ["Easy", "Normal", "Hard"]
 
   def initialize(state_manager, difficulty)
     @state_manager = state_manager
@@ -20,7 +21,7 @@ class GameWindow
       "background_16", "background_17", "credit_page"].map do |file|
         Gosu::Image.new("graphics/#{file}.png")
       end
-
+      @difficulty            = difficulty
       @level                 = 1
       @background_level      = 0
       @player                = Player.new
@@ -146,6 +147,7 @@ class GameWindow
       @font.draw_text("Score: #{@player.score}",130,565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
       @font.draw_text("Level: #{@level}/#{@backgrounds.length-1}", 20, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
       @font.draw_text("Score #{@score_to_advance} to advance", 600, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
+      @font.draw_text(DIFFICULTIES[@difficulty] + " Mode", 350, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
     else
       @backgrounds[@background_level].draw 19, 33, 0, 0.95, 0.95
       @score_background.draw 0, 550, 0, 1, 0.19, 0xBFffffff

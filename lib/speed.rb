@@ -13,7 +13,7 @@ class Speed
 
   def draw
     @speed.draw_rot(@x, @y, 0, 25 * Math.sin(Gosu.milliseconds / 133.7), center_x = 0.5, center_y = 0.5, scale_x = 0.08, scale_y = 0.08)
-    draw_border(@x, @y, @speed.width * 0.08, @speed.height * 0.08)
+    # draw_border(@x, @y, @speed.width * 0.08, @speed.height * 0.08)
   end
 
   def update_speed
