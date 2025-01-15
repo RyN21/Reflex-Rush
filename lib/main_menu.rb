@@ -16,7 +16,7 @@ class MainMenu
     @difficulty_y   = 300
     @start_button_x = 260
     @start_button_y = 500
-    @difficulty_sel = 1
+    @difficulty_sel = 0
     @menu_music.play(true)
   end
 

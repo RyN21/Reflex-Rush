@@ -2,13 +2,13 @@ require "gosu"
 
 class Rock
   attr_reader :x, :y
-  def initialize(difficulty)
+  def initialize(rock_velocity)
     rock_image  = Gosu::Image.new("graphics/rock.png")
     @rock       = rock_image.subimage(148,170,300,262)
     @floor      = FLOOR + @rock.height * 0.15
     @x          = rand 0..800
     @y          = 0
-    @vel        = difficulty
+    @vel        = rock_velocity
     @x_vel      = @vel
     @y_vel      = @vel
     @width      = 50
