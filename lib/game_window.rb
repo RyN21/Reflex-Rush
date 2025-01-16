@@ -46,17 +46,20 @@ class GameWindow
       @game_music            = Gosu::Song.new("sounds/8bit_music.mp3")
       case @difficulty
       when 0
-        @rock_velocity    = 2
-        @gen_rock_time    = 7_000
-        @score_to_advance = 45
+        @rock_velocity           = 2
+        @gen_rock_time           = 7_000
+        @score_to_advance        = 45
+        @rock_velocity_incrament = 0.5
       when 1
-        @rock_velocity    = 3
-        @gen_rock_time    = 5_000
-        @score_to_advance = 60
+        @rock_velocity           = 3
+        @gen_rock_time           = 5_000
+        @score_to_advance        = 60
+        @rock_velocity_incrament = 0.75
       when 2
-        @rock_velocity    = 4
-        @gen_rock_time    = 3_000
-        @score_to_advance = 75
+        @rock_velocity           = 4
+        @gen_rock_time           = 3_000
+        @score_to_advance        = 75
+        @rock_velocity_incrament = 1
       end
   end
 
@@ -177,7 +180,7 @@ class GameWindow
       @level_up_sound.play unless @background_level == @backgrounds.length - 1
       @level += 1
       @rocks.clear
-      @rock_velocity += 1
+      @rock_velocity += @rock_velocity_incrament
       @score_to_advance += 15
     end
   end
