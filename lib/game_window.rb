@@ -29,6 +29,8 @@ class GameWindow
       @last_rock             = Gosu.milliseconds
       @font                  = Gosu::Font.new(20)
       @score_background      = Gosu::Image.new("graphics/score_background.png")
+      @empty_hearts          = Gosu::Image.new("graphics/empty_hearts.png")
+      @heart                 = Gosu::Image.new("graphics/heart.png")
       @logo_bg               = Gosu::Image.new("graphics/logo_bg.png")
       @bonus_points          = []
       @last_bonus_Point      = Gosu.milliseconds
@@ -144,7 +146,18 @@ class GameWindow
       end
 
       @score_background.draw 0, 550, 0, 1, 0.19, 0xBFffffff
-      @font.draw_text("Lives: #{@player.lives}",20,20, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
+      @empty_hearts.draw 25, -200, 0, 0.60, 0.60
+      @heart.draw -188, -215, 0, 0.60, 0.60
+      @heart.draw -140.5, -215, 0, 0.60, 0.60
+      @heart.draw -93, -215, 0, 0.60, 0.60
+      @heart.draw -45.5, -215, 0, 0.60, 0.60
+      @heart.draw 2, -215, 0, 0.60, 0.60
+      @heart.draw 49.5, -215, 0, 0.60, 0.60
+      @heart.draw 97, -215, 0, 0.60, 0.60
+      @heart.draw 144.5, -215, 0, 0.60, 0.60
+      @heart.draw 192, -215, 0, 0.60, 0.60
+      @heart.draw 239.5, -215, 0, 0.60, 0.60
+      # @font.draw_text("Lives: #{@player.lives}",20,20, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
       @font.draw_text("Score: #{@player.score}",130,565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
       @font.draw_text("Level: #{@level}/#{@backgrounds.length-1}", 20, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
       @font.draw_text("Score #{@score_to_advance} to advance", 600, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
@@ -194,7 +207,7 @@ class GameWindow
   def game_over
     if @player.lives == 0
       @lose_sound.play
-      @state_manager.switch_to(MainMenu.new(@state_manager))
+      @state_manager.switch_to(Credits.new(@state_manager))
     end
   end
 end
