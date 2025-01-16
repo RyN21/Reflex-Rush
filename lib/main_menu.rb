@@ -1,6 +1,4 @@
 require 'gosu'
-require_relative "state_manager"
-require_relative "game_window"
 # Main menu Logic
 
 class MainMenu

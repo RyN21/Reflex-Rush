@@ -1,8 +1,4 @@
 require "gosu"
-require_relative "player"
-require_relative "rock"
-require_relative "state_manager"
-require_relative "main_menu"
 
 #Game Logic and gameplay
 
@@ -106,6 +102,7 @@ class GameWindow
     you_lose
     level_up
     you_win
+    game_over
   end
 
   def draw
@@ -147,12 +144,14 @@ class GameWindow
 
       @score_background.draw 0, 550, 0, 1, 0.19, 0xBFffffff
       @empty_hearts.draw 25, -200, 0, 0.60, 0.60
+
+      #Lives - hearts
       heart_x = -188
       @player.lives.times do
         @heart.draw heart_x, -215, 0, 0.60, 0.60
         heart_x += 47.5
       end
-      @font.draw_text("Lives: #{@player.lives}",20,20, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
+
       @font.draw_text("Score: #{@player.score}",130,565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
       @font.draw_text("Level: #{@level}/#{@backgrounds.length-1}", 20, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
       @font.draw_text("Score #{@score_to_advance} to advance", 600, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
@@ -195,13 +194,16 @@ class GameWindow
     if @player.victory?(@level, @backgrounds)
       @win_sound.play
       @level += 1
+      @game_music.stop
+      @state_manager.switch_to(Credits.new(@state_manager, "win"))
     end
   end
 
   def game_over
     if @player.lives == 0
       @lose_sound.play
-      @state_manager.switch_to(Credits.new(@state_manager))
+      @game_music.stop
+      @state_manager.switch_to(Credits.new(@state_manager, "lost"))
     end
   end
 end
