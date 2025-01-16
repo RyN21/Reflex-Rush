@@ -21,7 +21,9 @@ class Credits
 
   def button_down id
     case id
-    when Gosu::KB_RETURN || Gosu::KB_ESCAPE
+    when Gosu::KB_RETURN
+        @state_manager.switch_to(MainMenu.new(@state_manager))
+    when Gosu::KB_ESCAPE
         @state_manager.switch_to(MainMenu.new(@state_manager))
     end
   end

@@ -20,7 +20,7 @@ TITLE        = "Reflex Rush"
 
 class Main < Gosu::Window
   def initialize
-    super WINDOW_WIDTH, WINDOW_HEIGHT
+    super WINDOW_WIDTH, WINDOW_HEIGHT, fullscreen: true
     self.caption = TITLE
     @state_manager = StateManger.new(self)
 

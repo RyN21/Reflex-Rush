@@ -215,8 +215,7 @@ end
 
 
 # refactor
-# window toggle
-# health/lives
+# window toggle 
 # character select option
 # Visual effect for rock impact
 #
