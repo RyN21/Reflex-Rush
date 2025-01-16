@@ -162,6 +162,7 @@ class Player
 
   def you_lose
     @score = 0
+    lose_life
   end
 
   def victory?(level, backgrounds)

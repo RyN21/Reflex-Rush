@@ -147,17 +147,12 @@ class GameWindow
 
       @score_background.draw 0, 550, 0, 1, 0.19, 0xBFffffff
       @empty_hearts.draw 25, -200, 0, 0.60, 0.60
-      @heart.draw -188, -215, 0, 0.60, 0.60
-      @heart.draw -140.5, -215, 0, 0.60, 0.60
-      @heart.draw -93, -215, 0, 0.60, 0.60
-      @heart.draw -45.5, -215, 0, 0.60, 0.60
-      @heart.draw 2, -215, 0, 0.60, 0.60
-      @heart.draw 49.5, -215, 0, 0.60, 0.60
-      @heart.draw 97, -215, 0, 0.60, 0.60
-      @heart.draw 144.5, -215, 0, 0.60, 0.60
-      @heart.draw 192, -215, 0, 0.60, 0.60
-      @heart.draw 239.5, -215, 0, 0.60, 0.60
-      # @font.draw_text("Lives: #{@player.lives}",20,20, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
+      heart_x = -188
+      @player.lives.times do
+        @heart.draw heart_x, -215, 0, 0.60, 0.60
+        heart_x += 47.5
+      end
+      @font.draw_text("Lives: #{@player.lives}",20,20, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
       @font.draw_text("Score: #{@player.score}",130,565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
       @font.draw_text("Level: #{@level}/#{@backgrounds.length-1}", 20, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
       @font.draw_text("Score #{@score_to_advance} to advance", 600, 565, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
@@ -190,7 +185,6 @@ class GameWindow
 
   def you_lose
     if @player.score < 0
-      @player.lose_life
       @player.you_lose
       @rocks.clear
       @lose_sound.play
